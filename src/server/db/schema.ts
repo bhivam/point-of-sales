@@ -96,7 +96,13 @@ export const userRoleEnum = pgEnum("user_role", [
 ]);
 
 // empty means closed for the day
-type Hours = { open: number; close: number }[];
+type Hours = {
+  openHour: number;
+  openMinute: number;
+  closeHour: number;
+  closeMinute: number;
+}[];
+
 type DayHours = {
   monday: Hours;
   tuesday: Hours;
@@ -258,5 +264,3 @@ export const itemModifiersRelations = relations(itemModifiers, ({ one }) => ({
     references: [menuItems.id],
   }),
 }));
-
-// TODO: Add tables, layouts

@@ -5,8 +5,10 @@ import { z } from "zod";
 
 const HoursSchema = z.array(
   z.object({
-    open: z.number().min(0).max(23),
-    close: z.number().min(0).max(23),
+    openHour: z.number().min(0).max(23),
+    openMinute: z.number().min(0).max(59),
+    closeHour: z.number().min(0).max(23),
+    closeMinute: z.number().min(0).max(59),
   }),
 );
 
@@ -39,7 +41,6 @@ export const restaurantRouter = createTRPCRouter({
 
     return result;
   }),
-
   createRestaurant: protectedProcedure
     .input(
       z.object({
@@ -47,17 +48,10 @@ export const restaurantRouter = createTRPCRouter({
           .string()
           .min(1, "Restaurant name is required")
           .max(255, "Name cannot exceed 255 characters"),
-        type: z
-          .string()
-          .max(100, "Type cannot exceed 100 characters")
-          .optional(),
-        address: z.string().optional(),
-        phone: z
-          .string()
-          .max(20, "Phone number cannot exceed 20 characters")
-          .regex(/^[\d\s\+\-\(\)\.]+$/, "Invalid phone number format")
-          .optional(),
-        email: z.string().email("Invalid email address").max(255).optional(),
+        type: z.string().max(100, "Type cannot exceed 100 characters"),
+        address: z.string(),
+        phone: z.string().regex(/^[0-9]{10}$/, "Invalid phone number format"),
+        email: z.string().email("Invalid email address").max(255),
         taxRate: z.number().min(0, "Tax rate cannot be negative").default(0.0),
         openingHours: z.object({
           monday: HoursSchema,
@@ -71,7 +65,7 @@ export const restaurantRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      ctx.db.insert(restaurants).values({
+      const res = await ctx.db.insert(restaurants).values({
         name: input.name,
         type: input.type,
         address: input.address,
@@ -82,6 +76,6 @@ export const restaurantRouter = createTRPCRouter({
         createdById: ctx.session.user.id,
       });
 
-      return true;
+      return res.length > 0;
     }),
 });
