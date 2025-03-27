@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// TODO can use that inputs outputs thing so move this back to restaurant router later
+
 export const HoursSchema = z
   .array(
     z.object({

@@ -185,8 +185,7 @@ export const menu = createTable("menu", (d) => ({
     .notNull()
     .references(() => restaurants.id),
   name: d.varchar({ length: 100 }).notNull(),
-  hoursActive: d.json().$type<DayHours>(),
-  isActive: d.boolean().default(true),
+  isActive: d.boolean().notNull().default(true),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -208,9 +207,9 @@ export const menuSections = createTable("menu_section", (d) => ({
     .notNull()
     .references(() => menu.id),
   name: d.varchar({ length: 100 }).notNull(),
-  description: d.text(),
-  displayOrder: d.integer().default(0),
-  isActive: d.boolean().default(true),
+  description: d.text().notNull(),
+  displayOrder: d.integer().notNull().default(0),
+  isActive: d.boolean().notNull().default(true),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -236,20 +235,23 @@ export const menuItems = createTable("menu_item", (d) => ({
     .notNull()
     .references(() => menuSections.id),
   name: d.varchar({ length: 255 }).notNull(),
-  description: d.text(),
+  description: d.text().notNull(),
   price: d.real().notNull(),
-  displayOrder: d.integer().default(0),
-  preparationTime: d.integer(),
-  ingredients: d.json().$type<string[]>(),
-  allergens: d.json().$type<string[]>(),
-  dietaryFlags: d.json().$type<{
-    vegetarian: boolean;
-    vegan: boolean;
-    glutenFree: boolean;
-    dairyFree: boolean;
-  }>(),
+  displayOrder: d.integer().notNull().default(0),
+  preparationTime: d.integer().notNull(),
+  ingredients: d.json().$type<string[]>().notNull(),
+  allergens: d.json().$type<string[]>().notNull(),
+  dietaryFlags: d
+    .json()
+    .$type<{
+      vegetarian: boolean;
+      vegan: boolean;
+      glutenFree: boolean;
+      dairyFree: boolean;
+    }>()
+    .notNull(),
   image: d.varchar({ length: 255 }), // idk what i'm doing for this (uploadthing?)
-  isAvailable: d.boolean().default(true),
+  isAvailable: d.boolean().default(true).notNull(),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

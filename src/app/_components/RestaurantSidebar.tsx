@@ -101,13 +101,13 @@ export default function RestaurantSidebar({
           name: "Menu Editor",
           href: `${basePath}/menu`,
           icon: Utensils,
-          roles: ["owner", "manager"],
+          roles: ["owner", "manager", "server"],
         },
         {
           name: "Staff",
           href: `${basePath}/staff`,
           icon: Users,
-          roles: ["owner"],
+          roles: ["owner", "manager", "server"],
         },
         {
           name: "Reports",
