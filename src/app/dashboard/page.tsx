@@ -12,7 +12,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-// import RestaurantList from "@/components/restaurant-list";
+import { type RouterOutputs } from "@/trpc/react";
+import { RestaurantCard } from "@/app/_components/RestaurantCard";
+import { RestaurantCardbutton } from "@/app/_components/RestaurantCardButton";
+
+type RestaurantRoleList = RouterOutputs["restaurantRouter"]["getRestaurants"];
 
 export default async function Dashboard() {
   const session = await auth();
@@ -21,8 +25,8 @@ export default async function Dashboard() {
     redirect("/");
   }
 
-  const restaurants = await api.restaurantRouter.getRestaurants();
-  console.log(restaurants);
+  const restaurants: RestaurantRoleList =
+    await api.restaurantRouter.getRestaurants();
 
   return (
     <HydrateClient>
@@ -57,8 +61,14 @@ export default async function Dashboard() {
             </CardContent>
           </Card>
         ) : (
-          // <RestaurantList restaurants={restaurants} />
-          <p>{JSON.stringify(restaurants)}</p>
+          <div className="grid grid-cols-3 gap-2">
+            {restaurants.map((restaurant) => (
+              <RestaurantCardbutton
+                key={restaurant.id}
+                restaurantDetails={restaurant}
+              />
+            ))}
+          </div>
         )}
       </main>
     </HydrateClient>

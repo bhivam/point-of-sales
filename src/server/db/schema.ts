@@ -88,12 +88,7 @@ export const verificationTokens = createTable(
 
 // POS SYSTEM TABLES
 
-export const userRoleEnum = pgEnum("user_role", [
-  "owner",
-  "manager",
-  "server",
-  "kitchen",
-]);
+export const userRoleEnum = pgEnum("user_role", ["owner", "manager", "server"]);
 
 // empty means closed for the day
 type Hours = {
@@ -103,7 +98,7 @@ type Hours = {
   closeMinute: number;
 }[];
 
-type DayHours = {
+export type DayHours = {
   monday: Hours;
   tuesday: Hours;
   wednesday: Hours;
@@ -118,12 +113,12 @@ export const restaurants = createTable(
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     name: d.varchar({ length: 255 }).notNull(),
-    type: d.varchar({ length: 100 }),
-    address: d.text(),
-    phone: d.varchar({ length: 20 }),
-    email: d.varchar({ length: 255 }),
-    taxRate: d.real().default(0.0),
-    openingHours: d.json().$type<DayHours>(),
+    type: d.varchar({ length: 100 }).notNull(),
+    address: d.text().notNull(),
+    phone: d.varchar({ length: 20 }).notNull(),
+    email: d.varchar({ length: 255 }).notNull(),
+    taxRate: d.real().default(0.0).notNull(),
+    openingHours: d.json().$type<DayHours>().notNull(),
     createdById: d
       .varchar({ length: 255 })
       .notNull()
@@ -132,7 +127,10 @@ export const restaurants = createTable(
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+    updatedAt: d
+      .timestamp({ withTimezone: true })
+      .notNull()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [
     index("restaurant_created_by_idx").on(t.createdById),
@@ -160,7 +158,7 @@ export const restaurantStaff = createTable("restaurant_staff", (d) => ({
     .notNull()
     .references(() => users.id),
   role: userRoleEnum().notNull().default("server"),
-  isActive: d.boolean().default(true),
+  activated: d.boolean().default(false),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

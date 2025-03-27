@@ -131,3 +131,5 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+  // TODO possible add permission check middleware
