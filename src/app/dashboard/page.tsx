@@ -14,7 +14,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { type RouterOutputs } from "@/trpc/react";
 import { RestaurantCard } from "@/app/_components/RestaurantCard";
-import { RestaurantCardbutton } from "@/app/_components/RestaurantCardButton";
 
 type RestaurantRoleList = RouterOutputs["restaurantRouter"]["getRestaurants"];
 
@@ -63,7 +62,7 @@ export default async function Dashboard() {
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {restaurants.map((restaurant) => (
-              <RestaurantCardbutton
+              <RestaurantCard
                 key={restaurant.id}
                 restaurantDetails={restaurant}
               />

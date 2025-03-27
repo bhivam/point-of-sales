@@ -86,8 +86,6 @@ export const verificationTokens = createTable(
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
 
-// POS SYSTEM TABLES
-
 export const userRoleEnum = pgEnum("user_role", ["owner", "manager", "server"]);
 
 // empty means closed for the day
@@ -187,7 +185,31 @@ export const menu = createTable("menu", (d) => ({
     .notNull()
     .references(() => restaurants.id),
   name: d.varchar({ length: 100 }).notNull(),
-  hoursActive: d.json().$type<DayHours>(), // can prefer menu at particular times
+  hoursActive: d.json().$type<DayHours>(),
+  isActive: d.boolean().default(true),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+}));
+export const menuRelations = relations(menu, ({ one, many }) => ({
+  restaurant: one(restaurants, {
+    fields: [menu.restaurantId],
+    references: [restaurants.id],
+  }),
+  sections: many(menuSections),
+}));
+
+export const menuSections = createTable("menu_section", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  menuId: d
+    .integer()
+    .notNull()
+    .references(() => menu.id),
+  name: d.varchar({ length: 100 }).notNull(),
+  description: d.text(),
+  displayOrder: d.integer().default(0),
   isActive: d.boolean().default(true),
   createdAt: d
     .timestamp({ withTimezone: true })
@@ -196,33 +218,37 @@ export const menu = createTable("menu", (d) => ({
   updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 }));
 
-export const menuRelations = relations(menu, ({ one, many }) => ({
-  restaurant: one(restaurants, {
-    fields: [menu.restaurantId],
-    references: [restaurants.id],
+export const menuSectionsRelations = relations(
+  menuSections,
+  ({ one, many }) => ({
+    menu: one(menu, {
+      fields: [menuSections.menuId],
+      references: [menu.id],
+    }),
+    items: many(menuItems),
   }),
-  menuItems: many(menuItems),
-}));
+);
 
 export const menuItems = createTable("menu_item", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  categoryId: d
+  sectionId: d
     .integer()
     .notNull()
-    .references(() => menu.id),
+    .references(() => menuSections.id),
   name: d.varchar({ length: 255 }).notNull(),
   description: d.text(),
   price: d.real().notNull(),
-  preparationTime: d.integer(), // in minutes
+  displayOrder: d.integer().default(0),
+  preparationTime: d.integer(),
   ingredients: d.json().$type<string[]>(),
   allergens: d.json().$type<string[]>(),
   dietaryFlags: d.json().$type<{
-    vegetarian?: boolean;
-    vegan?: boolean;
-    glutenFree?: boolean;
-    dairyFree?: boolean;
+    vegetarian: boolean;
+    vegan: boolean;
+    glutenFree: boolean;
+    dairyFree: boolean;
   }>(),
-  image: d.varchar({ length: 255 }),
+  image: d.varchar({ length: 255 }), // idk what i'm doing for this (uploadthing?)
   isAvailable: d.boolean().default(true),
   createdAt: d
     .timestamp({ withTimezone: true })
@@ -231,8 +257,11 @@ export const menuItems = createTable("menu_item", (d) => ({
   updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 }));
 
-export const menuItemsRelations = relations(menuItems, ({ many }) => ({
-  menus: many(menu),
+export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
+  section: one(menuSections, {
+    fields: [menuItems.sectionId],
+    references: [menuSections.id],
+  }),
   modifiers: many(itemModifiers),
 }));
 

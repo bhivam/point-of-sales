@@ -5,14 +5,11 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { restaurantInputSchema } from "@/server/api/zod-schemas";
 
-// Create a common restaurant object schema
 export const restaurantRouter = createTRPCRouter({
-  // Get all restaurants (with pagination)
   getRestaurants: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
     try {
-      // Build query with pagination
       const query = ctx.db
         .select({
           restaurant: restaurants,
@@ -49,7 +46,6 @@ export const restaurantRouter = createTRPCRouter({
     }
   }),
 
-  // Get a single restaurant by ID
   getRestaurantById: protectedProcedure
     .input(
       z.object({
@@ -87,17 +83,19 @@ export const restaurantRouter = createTRPCRouter({
           .where(eq(restaurants.id, input.id))
           .limit(1);
 
-        if (!restaurantResult.length) {
+        if (!restaurantResult.length || !restaurantResult[0]) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Restaurant not found",
           });
         }
 
-        return {
+        const result = {
           ...restaurantResult[0],
           role: restaurantAccess[0]?.role,
         };
+
+        return result;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
@@ -107,15 +105,11 @@ export const restaurantRouter = createTRPCRouter({
       }
     }),
 
-  // Create a new restaurant
   createRestaurant: protectedProcedure
     .input(restaurantInputSchema)
     .mutation(async ({ ctx, input }) => {
-      // Add validation to hours
       try {
-        // Create the restaurant
         const result = await ctx.db.transaction(async (tx) => {
-          // Insert restaurant record
           const restaurantResult = await tx
             .insert(restaurants)
             .values({
@@ -136,7 +130,6 @@ export const restaurantRouter = createTRPCRouter({
 
           const restaurantId = restaurantResult[0].id;
 
-          // Add creator as owner
           await tx.insert(restaurantStaff).values({
             restaurantId: restaurantId,
             userId: ctx.session.user.id,
@@ -159,7 +152,6 @@ export const restaurantRouter = createTRPCRouter({
       }
     }),
 
-  // Update an existing restaurant
   updateRestaurant: protectedProcedure
     .input(
       z.object({
@@ -171,7 +163,6 @@ export const restaurantRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
 
       try {
-        // Verify user has permission to update this restaurant
         const userAccess = await ctx.db
           .select({
             role: restaurantStaff.role,
