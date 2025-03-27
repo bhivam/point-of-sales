@@ -1,29 +1,16 @@
-# Create T3 App
+## To Do
+- Go to a particular restaurant's dash with a slug.
+ - It has to be with the context of the user's role in that restaurant. 
+ - So, to do this we have to keep the relationship as context and for any action that's done in the restaurant we have to do a role check.
+  - This includes taking orders, moving a table, etc. 
+- Once we have the restaurant with user context figured out in the frontend I will work on taking actions in the restaurant
+ - Inviting staff members to join the restaurant.
+  - We should be able to do this via email. (invites table with role, restaurant, staff email?)
+  - Idk if i'll setup a smtp service but upon account creation the system will try to link up the staff member with the restaurant and put themin activated status.
+ - Creating and editing a menu.
+ - Adding and removing tables.
+ - Taking orders
+  - tableless (to go)
+  - with table in mind
+ - We should add a set of open and close times for the kitchen that needs to be a subset of the times the restaurant is open. This is so that orders can't be placed during certain sets of time.
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
-
-## What's next? How do I make an app with this?
-
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
-
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
-
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
-
-## Learn More
-
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
-
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
