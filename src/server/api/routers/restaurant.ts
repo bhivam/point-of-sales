@@ -60,6 +60,7 @@ export const restaurantRouter = createTRPCRouter({
           .select({
             activated: restaurantStaff.activated,
             role: restaurantStaff.role,
+            restaurantStaffId: restaurantStaff.id,
           })
           .from(restaurantStaff)
           .where(
@@ -93,6 +94,7 @@ export const restaurantRouter = createTRPCRouter({
         const result = {
           ...restaurantResult[0],
           role: restaurantAccess[0]?.role,
+          restaurantStaffId: restaurantAccess[0]?.restaurantStaffId
         };
 
         return result;

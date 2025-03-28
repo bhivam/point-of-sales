@@ -354,6 +354,7 @@ export const orderItems = createTable("order_item", (d) => ({
     .integer()
     .notNull()
     .references(() => orders.id),
+  specialInstructions: d.text(),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

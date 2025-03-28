@@ -57,12 +57,6 @@ export default function RestaurantSidebar({
           icon: Home,
           roles: ["owner", "manager", "server"],
         },
-        {
-          name: "Restaurant Info",
-          href: `${basePath}/info`,
-          icon: FileText,
-          roles: ["owner", "manager", "server"],
-        },
       ],
     },
     {
@@ -75,21 +69,9 @@ export default function RestaurantSidebar({
           roles: ["owner", "manager", "server"],
         },
         {
-          name: "Active Orders",
-          href: `${basePath}/orders/active`,
+          name: "View Orders",
+          href: `${basePath}/orders/view`,
           icon: Clock,
-          roles: ["owner", "manager", "server"],
-        },
-        {
-          name: "Order History",
-          href: `${basePath}/orders/history`,
-          icon: Receipt,
-          roles: ["owner", "manager", "server"],
-        },
-        {
-          name: "Reservations",
-          href: `${basePath}/reservations`,
-          icon: CalendarClock,
           roles: ["owner", "manager", "server"],
         },
       ],
@@ -109,24 +91,6 @@ export default function RestaurantSidebar({
           icon: Users,
           roles: ["owner", "manager", "server"],
         },
-        {
-          name: "Reports",
-          href: `${basePath}/reports`,
-          icon: DollarSign,
-          roles: ["owner", "manager"],
-        },
-        {
-          name: "Payments",
-          href: `${basePath}/payments`,
-          icon: CreditCard,
-          roles: ["owner", "manager"],
-        },
-        {
-          name: "Settings",
-          href: `${basePath}/settings`,
-          icon: Settings,
-          roles: ["owner"],
-        },
       ],
     },
   ];
@@ -143,7 +107,7 @@ export default function RestaurantSidebar({
         <div className="space-y-6">
           {navigationItems.map((group) => (
             <div key={group.category}>
-              <h3 className="text-muted-foreground mb-3 text-xs font-medium tracking-wider uppercase">
+              <h3 className="text-gray-700 mb-3 text-xs font-medium uppercase">
                 {group.category}
               </h3>
               <ul className="space-y-1">
