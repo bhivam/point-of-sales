@@ -144,7 +144,7 @@ export default function OrderTaker({
   const addOrderMutation = api.orderRouter.addOrder.useMutation({
     onSuccess: () => {
       toast.success("Success", { description: "Order created successfully" });
-      nav.push("/dashboard/1/orders");
+      nav.push("/dashboard/1/orders/view");
     },
     onError: (e) =>
       toast.error("Error", { description: "Failed to create order: " + e }),

@@ -307,7 +307,7 @@ export const orders = createTable("order", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   location: locationEnum().notNull().default("table"),
   tableNumber: d.integer(),
-  phone: d.varchar({ length: 20 }).notNull(),
+  phone: d.varchar({ length: 20 }),
   name: d.varchar({ length: 255 }),
   restaurantId: d
     .integer()
