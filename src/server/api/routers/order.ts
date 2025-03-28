@@ -4,6 +4,15 @@ import { orderItems, orderItemsToModifiers, orders } from "@/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+const orderItemSchema = z.object({
+  restaurantId: z.number(),
+  menuItemId: z.number(),
+  restaurantStaffId: z.number(),
+  orderId: z.number(),
+  specialInstructions: z.string().optional(),
+  modifierIds: z.number().array(),
+});
+
 const orderSchema = z.object({
   location: z.enum(["table", "to_go"]),
   tableNumber: z.number().optional(),
@@ -14,15 +23,7 @@ const orderSchema = z.object({
   name: z.string().optional(),
   restaurantId: z.number(),
   restaurantStaffId: z.number(),
-});
-
-const orderItemSchema = z.object({
-  restaurantId: z.number(),
-  menuItemId: z.number(),
-  restaurantStaffId: z.number(),
-  orderId: z.number(),
-  specialInstructions: z.string().optional(),
-  modifierIds: z.number().array(),
+  orderItems: orderItemSchema.omit({ orderId: true }).array(),
 });
 
 export const orderRouter = createTRPCRouter({
@@ -66,13 +67,44 @@ export const orderRouter = createTRPCRouter({
         if (!result.length || !result[0]) {
           throw new Error("Failed to create order");
         }
+        console.log("NOOO");
+
+        const orderItemsResult = await ctx.db
+          .insert(orderItems)
+          .values(
+            input.orderItems.map((input) => ({
+              restaurantId: input.restaurantId,
+              menuItemId: input.menuItemId,
+              restaurantStaffId: input.restaurantStaffId,
+              orderId: result[0]!.id,
+              specialInstructions: input.specialInstructions,
+            })),
+          )
+          .returning({ id: orderItems.id });
+
+        console.log(orderItemsResult);
+
+        if (orderItemsResult.length !== input.orderItems.length) {
+          throw new Error("Failed to create orderItems");
+        }
+
+        await ctx.db.insert(orderItemsToModifiers).values(
+          input.orderItems
+            .map((input, i) =>
+              input.modifierIds.map((modifierId) => ({
+                orderItemId: orderItemsResult[i]!.id,
+                modifierId,
+              })),
+            )
+            .flat(),
+        );
 
         return result[0].id;
       } catch (e) {
         if (e instanceof TRPCError) throw e;
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create order",
+          message: "Failed to create order " + e,
         });
       }
     }),

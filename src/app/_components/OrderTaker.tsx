@@ -2,9 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { RouterOutputs } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const orderSchema = z.object({
@@ -140,6 +141,15 @@ export default function OrderTaker({
     setStage("items");
   };
 
+  const addOrderMutation = api.orderRouter.addOrder.useMutation({
+    onSuccess: () => {
+      toast.success("Success", { description: "Order created successfully" });
+      nav.push("/dashboard/1/orders");
+    },
+    onError: (e) =>
+      toast.error("Error", { description: "Failed to create order: " + e }),
+  });
+
   const submitOrder = () => {
     try {
       const order: Omit<Order, "orderId"> = {
@@ -157,11 +167,21 @@ export default function OrderTaker({
 
       orderSchema.parse(order);
 
-      console.log("Order validated successfully:", order);
-      console.log("Order items:", selectedItems);
-
-      alert("Order created successfully!");
-      nav.push("/dashboard/1/orders");
+      addOrderMutation.mutate({
+        location: order.location,
+        tableNumber: order.tableNumber,
+        name: order.name,
+        phone: order.phone,
+        restaurantId: restaurantDetails.id,
+        restaurantStaffId: restaurantDetails.restaurantStaffId,
+        orderItems: selectedItems.map((selectedItem) => ({
+          restaurantId: restaurantDetails.id,
+          menuItemId: selectedItem.item.id,
+          restaurantStaffId: restaurantDetails.restaurantStaffId,
+          specialInstructions: selectedItem.specialInstructions,
+          modifierIds: selectedItem.selectedModifiers,
+        })),
+      });
     } catch (error) {
       console.error("Order validation failed:", error);
       alert("Failed to create order. Please check your inputs.");
