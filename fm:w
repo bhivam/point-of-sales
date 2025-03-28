@@ -305,12 +305,8 @@ export const orders = createTable("order", (d) => ({
   tableNumber: d.integer(),
   phone: d.varchar({ length: 20 }).notNull(),
   name: d.varchar({ length: 255 }),
-  restaurantId: d
-    .integer()
-    .notNull()
-    .references(() => restaurants.id),
   restaurantStaffId: d
-    .integer()
+    .varchar({ length: 255 })
     .notNull()
     .references(() => restaurantStaff.id),
   createdAt: d
@@ -326,30 +322,27 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.restaurantStaffId],
     references: [restaurantStaff.id],
   }),
-  restaurant: one(restaurants, {
-    fields: [orders.restaurantId],
-    references: [restaurants.id],
-  }),
 }));
 
 export const orderItems = createTable("order_item", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  restaurantId: d
-    .integer()
-    .notNull()
-    .references(() => restaurants.id),
-  menuItemId: d
-    .integer()
+  restaurantId:   menuItemId: d
+    .varchar({ length: 255 })
     .notNull()
     .references(() => menuItems.id),
-  restaurantStaffId: d
-    .integer()
+
+  menuItemId: d
+    .varchar({ length: 255 })
     .notNull()
     .references(() => menuItems.id),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+  restaurantStaffId: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => menuItems.id),
   updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
 }));
 
@@ -363,9 +356,5 @@ export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
   restaurantStaff: one(restaurantStaff, {
     fields: [orderItems.restaurantStaffId],
     references: [restaurantStaff.id],
-  }),
-  restaurant: one(restaurants, {
-    fields: [orderItems.restaurantId],
-    references: [restaurants.id],
   }),
 }));
