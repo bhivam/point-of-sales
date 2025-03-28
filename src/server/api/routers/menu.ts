@@ -1,10 +1,10 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { checkUserAccess } from "@/server/api/util";
 import {
   itemModifiers,
   menu,
   menuItems,
   menuSections,
-  restaurantStaff,
 } from "@/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -13,49 +13,6 @@ import { z } from "zod";
 // TODO put restaurant id in all objects associated with restaurant to speed up
 // the verification process. We shouldn't be doing a length 3 chain of db lookups
 // to see what restaurant an item is from
-
-const checkUserAccess = async (
-  ctx: any,
-  restaurantId: number,
-  requiredRoles: ("owner" | "manager" | "server")[] = [
-    "owner",
-    "manager",
-    "server",
-  ],
-) => {
-  const userId = ctx.session.user.id;
-
-  const userAccess = await ctx.db
-    .select({
-      activated: restaurantStaff.activated,
-      role: restaurantStaff.role,
-    })
-    .from(restaurantStaff)
-    .where(
-      and(
-        eq(restaurantStaff.userId, userId),
-        eq(restaurantStaff.restaurantId, restaurantId),
-      ),
-    )
-    .limit(1);
-
-  if (!userAccess.length || !userAccess[0]?.activated) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "You don't have access to this restaurant",
-    });
-  }
-
-  const role = userAccess[0].role;
-  if (!requiredRoles.includes(role)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "You don't have permission to perform this action",
-    });
-  }
-
-  return role;
-};
 
 const menuSchema = z.object({
   restaurantId: z.number(),
@@ -993,4 +950,4 @@ export const menuRouter = createTRPCRouter({
         });
       }
     }),
-}););
+});

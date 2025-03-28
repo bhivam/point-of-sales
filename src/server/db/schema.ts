@@ -290,12 +290,16 @@ export const itemModifiers = createTable(
   (t) => [index("modifier_item_idx").on(t.menuItemId)],
 );
 
-export const itemModifiersRelations = relations(itemModifiers, ({ one }) => ({
-  menuItem: one(menuItems, {
-    fields: [itemModifiers.menuItemId],
-    references: [menuItems.id],
+export const itemModifiersRelations = relations(
+  itemModifiers,
+  ({ one, many }) => ({
+    orderItemsToModifiers: many(orderItemsToModifiers),
+    menuItem: one(menuItems, {
+      fields: [itemModifiers.menuItemId],
+      references: [menuItems.id],
+    }),
   }),
-}));
+);
 
 export const locationEnum = pgEnum("location", ["table", "to_go"]);
 
@@ -345,7 +349,11 @@ export const orderItems = createTable("order_item", (d) => ({
   restaurantStaffId: d
     .integer()
     .notNull()
-    .references(() => menuItems.id),
+    .references(() => restaurantStaff.id),
+  orderId: d
+    .integer()
+    .notNull()
+    .references(() => orders.id),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -355,7 +363,11 @@ export const orderItems = createTable("order_item", (d) => ({
 
 // CAUTION if something blows up check the relation naming I did here
 export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
-  itemModifiers: many(itemModifiers),
+  orderItemsToModifiers: many(orderItemsToModifiers),
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
   menuItem: one(menuItems, {
     fields: [orderItems.menuItemId],
     references: [menuItems.id],
@@ -369,3 +381,31 @@ export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
     references: [restaurants.id],
   }),
 }));
+
+export const orderItemsToModifiers = createTable(
+  "order_items_to_modifiers",
+  (d) => ({
+    orderItemId: d
+      .integer()
+      .notNull()
+      .references(() => orderItems.id),
+    modifierId: d
+      .integer()
+      .notNull()
+      .references(() => itemModifiers.id),
+  }),
+);
+
+export const orderItemsToModifiersRelations = relations(
+  orderItemsToModifiers,
+  ({ one }) => ({
+    orderItem: one(orderItems, {
+      fields: [orderItemsToModifiers.orderItemId],
+      references: [orderItems.id],
+    }),
+    itemModifier: one(itemModifiers, {
+      fields: [orderItemsToModifiers.modifierId],
+      references: [itemModifiers.id],
+    }),
+  }),
+);
