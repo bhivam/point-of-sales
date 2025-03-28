@@ -13,4 +13,10 @@
   - tableless (to go)
   - with table in mind
  - We should add a set of open and close times for the kitchen that needs to be a subset of the times the restaurant is open. This is so that orders can't be placed during certain sets of time.
-
+- Adding more robust storage and inputs for some fields (do this if time)
+ - Phone number should be split up to be more robust
+ - Address should be another table that gets linked to
+ - restaurant type should be a list of phrases json string list
+- Add Toasts in more places for increased interactivity (we need to make sure the toasts are not annoying or in the way)
+- Move all prices to be in pennies
+- Think of better reprsentation for percentages

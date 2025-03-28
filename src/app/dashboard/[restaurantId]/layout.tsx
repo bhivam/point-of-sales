@@ -11,7 +11,7 @@ export default async function RestaurantLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { restaurantId: string };
+  params: Promise<{ restaurantId: string }>;
 }) {
   const session = await auth();
 
@@ -19,7 +19,8 @@ export default async function RestaurantLayout({
     redirect("/");
   }
 
-  const restaurantId = parseInt(params.restaurantId, 10);
+  const restaurantId = parseInt((await params).restaurantId, 10);
+
 
   try {
     const restaurantDetails = await api.restaurantRouter.getRestaurantById({

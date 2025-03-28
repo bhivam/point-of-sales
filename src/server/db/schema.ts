@@ -145,24 +145,28 @@ export const restaurantsRelations = relations(restaurants, ({ one, many }) => ({
   menus: many(menu),
 }));
 
-export const restaurantStaff = createTable("restaurant_staff", (d) => ({
-  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  restaurantId: d
-    .integer()
-    .notNull()
-    .references(() => restaurants.id),
-  userId: d
-    .varchar({ length: 255 })
-    .notNull()
-    .references(() => users.id),
-  role: userRoleEnum().notNull().default("server"),
-  activated: d.boolean().default(false),
-  createdAt: d
-    .timestamp({ withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-}));
+export const restaurantStaff = createTable(
+  "restaurant_staff",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    restaurantId: d
+      .integer()
+      .notNull()
+      .references(() => restaurants.id),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    role: userRoleEnum().notNull().default("server"),
+    activated: d.boolean().default(false),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  }),
+  (t) => [index("restaurant_staff_idx").on(t.restaurantId, t.userId)],
+);
 
 export const restaurantStaffRelations = relations(
   restaurantStaff,
@@ -185,7 +189,6 @@ export const menu = createTable("menu", (d) => ({
     .notNull()
     .references(() => restaurants.id),
   name: d.varchar({ length: 100 }).notNull(),
-  isActive: d.boolean().notNull().default(true),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -209,7 +212,6 @@ export const menuSections = createTable("menu_section", (d) => ({
   name: d.varchar({ length: 100 }).notNull(),
   description: d.text().notNull(),
   displayOrder: d.integer().notNull().default(0),
-  isActive: d.boolean().notNull().default(true),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -251,7 +253,6 @@ export const menuItems = createTable("menu_item", (d) => ({
     }>()
     .notNull(),
   image: d.varchar({ length: 255 }), // idk what i'm doing for this (uploadthing?)
-  isAvailable: d.boolean().default(true).notNull(),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -276,8 +277,8 @@ export const itemModifiers = createTable(
       .notNull()
       .references(() => menuItems.id),
     name: d.varchar({ length: 100 }).notNull(),
-    priceAdjustment: d.real().default(0.0),
-    isDefault: d.boolean().default(false),
+    priceAdjustment: d.real().notNull().default(0.0),
+    isDefault: d.boolean().notNull().default(false),
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -293,3 +294,10 @@ export const itemModifiersRelations = relations(itemModifiers, ({ one }) => ({
     references: [menuItems.id],
   }),
 }));
+
+export const orders = createTable(
+  "order",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  })
+)

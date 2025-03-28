@@ -1,3 +1,4 @@
+import { menuRouter } from "@/server/api/routers/menu";
 import { restaurantRouter } from "@/server/api/routers/restaurant";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
@@ -6,7 +7,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  *
  * All routers added in /api/routers should be manually added here.
  */
-export const appRouter = createTRPCRouter({ restaurantRouter });
+export const appRouter = createTRPCRouter({ restaurantRouter, menuRouter });
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
